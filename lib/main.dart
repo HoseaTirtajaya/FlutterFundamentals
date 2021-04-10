@@ -30,15 +30,38 @@ class homepage extends StatelessWidget {
             showDialog(
                 context: context,
                 builder: (context) {
-                  return AlertDialog(
-                    title: Text("Pop Up Alert!"),
-                    content: Text("Body of Alert"),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: Text("Got it!"),
-                        onPressed: () {},
-                      )
-                    ],
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0)),
+                    child: Container(
+                      height: 200,
+                      child: Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            TextField(
+                              decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Hello World"),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              width: 320.0,
+                              child: RaisedButton(
+                                color: Colors.blue,
+                                onPressed: () {},
+                                child: Text(
+                                  "Got it!",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
                   );
                 });
           },
