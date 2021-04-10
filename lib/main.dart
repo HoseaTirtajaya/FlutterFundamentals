@@ -40,7 +40,8 @@ class homepage extends StatelessWidget {
                 context: context,
                 builder: (context) => CustomDialog(
                   title: "Success",
-                  description: "Lorem Ipsum dolor sit amet",
+                  description:
+                      "Congratulation! You've tapped the image! Now the pop up has been shown!",
                 ),
               );
             }),
@@ -68,6 +69,8 @@ class CustomDialog extends StatelessWidget {
     return Stack(
       children: <Widget>[
         Container(
+          width: 280,
+          height: 300,
           padding: EdgeInsets.only(top: 100, bottom: 16, left: 16, right: 16),
           margin: EdgeInsets.only(top: 16),
           decoration: BoxDecoration(
@@ -96,6 +99,7 @@ class CustomDialog extends StatelessWidget {
                   Text(
                     description,
                     style: TextStyle(fontSize: 16.0),
+                    textAlign: TextAlign.center,
                   ),
                   SizedBox(
                     height: 24.0,
