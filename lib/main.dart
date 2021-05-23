@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,19 +13,19 @@ class Product {
   static List<Product> getProducts() {
     List<Product> items = <Product>[];
 
-    items.add(Product("Pixel", "Pixel is the most feature-full phone ever", 800,
-        "pixel.jpg"));
+    items.add(Product("Pixel", "Pixel is the most feature-full phone ever",
+        15000000, "pixel.jpg"));
     items.add(Product("Laptop", "Laptop is most productive development tool",
-        2000, "laptop.jpg"));
+        20000000, "laptop.jpg"));
     items.add(Product(
         "Tablet",
         "Tablet is the most useful device ever for meeting",
-        1500,
+        15000000,
         "tablet.jpg"));
-    items.add(Product(
-        "Pendrive", "Pendrive is useful storage medium", 100, "pendrive.jpg"));
+    items.add(Product("Pendrive", "Pendrive is useful storage medium", 100000,
+        "pendrive.jpg"));
     items.add(Product("Floppy Drive",
-        "Floppy drive is useful rescue storage medium", 20, "floppy.jpg"));
+        "Floppy drive is useful rescue storage medium", 20000, "floppy.jpg"));
     return items;
   }
 }
@@ -98,7 +99,12 @@ class ProductPage extends StatelessWidget {
                             Text(this.item.name,
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Text(this.item.description),
-                            Text("Price: " + this.item.price.toString()),
+                            Text("Price: " +
+                                NumberFormat.currency(
+                                        locale: "id",
+                                        symbol: "Rp ",
+                                        decimalDigits: 0)
+                                    .format(this.item.price)),
                             RatingBox(),
                           ],
                         )))
@@ -220,7 +226,12 @@ class ProductBox extends StatelessWidget {
                             Text(this.item.name,
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Text(this.item.description),
-                            Text("Price: " + this.item.price.toString()),
+                            Text("Price: " +
+                                NumberFormat.currency(
+                                        locale: "id",
+                                        symbol: "Rp ",
+                                        decimalDigits: 0)
+                                    .format(this.item.price)),
                             RatingBox(),
                           ],
                         )))
