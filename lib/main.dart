@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:flutterfundamental/activity2.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,128 +11,91 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "PopUp Dialog App",
+      title: "ACTIVITY FLUTTER",
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: homepage(),
-    );
-  }
-}
-
-class homepage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("TUGAS ESA UNGGUL"),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: RaisedButton(
-            color: Colors.white,
-            splashColor: Colors.white,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage('assets/images/taphere.jpg'),
-                      fit: BoxFit.cover)),
-            ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => CustomDialog(
-                  title: "Success",
-                  description:
-                      "Congratulation! You've tapped the image! Now the pop up has been shown!",
-                ),
-              );
-            }),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Activity Flutter"),
+        ),
+        body: MyCustomForm(),
       ),
     );
   }
 }
 
-class CustomDialog extends StatelessWidget {
-  final String title, description, buttonText;
-  final Image image;
+class MyCustomForm extends StatefulWidget {
+  @override
+  _MyCustomFormState createState() => _MyCustomFormState();
+}
 
-  CustomDialog({this.title, this.description, this.buttonText, this.image});
+class _MyCustomFormState extends State<MyCustomForm> {
+  GlobalKey<FormState> _formkey = new GlobalKey<FormState>();
+  final myController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      child: dialogContent(context),
-    );
-  }
-
-  dialogContent(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Container(
-          width: 280,
-          height: 300,
-          padding: EdgeInsets.only(top: 100, bottom: 16, left: 16, right: 16),
-          margin: EdgeInsets.only(top: 16),
-          decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(17),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10.0,
-                    offset: Offset(0.0, 10.0))
-              ]),
+    return Padding(
+        padding: EdgeInsets.all(64),
+        child: Form(
+          key: _formkey,
           child: Column(
-            children: <Widget>[
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    title,
-                    style:
-                        TextStyle(fontSize: 24.0, fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(
-                    height: 24.0,
-                  ),
-                  Text(
-                    description,
-                    style: TextStyle(fontSize: 16.0),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(
-                    height: 24.0,
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: FlatButton(
-                      splashColor: Colors.black.withOpacity(0.05),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text("Got it!"),
-                    ),
-                  )
-                ],
-              )
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextFormField(
+                textInputAction: TextInputAction.next,
+                controller: myController,
+                autofocus: true,
+                decoration: InputDecoration(labelText: "Name"),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter some text";
+                  }
+                  return null;
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: ElevatedButton.icon(
+                    onPressed: () async {
+                      if (_formkey.currentState.validate() != false) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Processing Data...")));
+                        var navigationResult =
+                            await _sendDataToSecondActivity(context);
+                      }
+                    },
+                    icon: new Icon(Icons.account_circle_sharp),
+                    label: Text('Create Account')),
+              ),
             ],
           ),
-        ),
-        Positioned(
-          top: 0,
-          left: 16,
-          right: 16,
-          child: CircleAvatar(
-            backgroundColor: Colors.blue,
-            radius: 50.0,
-            backgroundImage: AssetImage('assets/images/success-mantapu.gif'),
-          ),
-        )
-      ],
-    );
+        ));
+  }
+
+  void _sendDataToSecondActivity(BuildContext context) {
+    String textToSend = myController.text;
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => Activity2(text: textToSend)));
+  }
+}
+
+class BasicDateField extends StatelessWidget {
+  final format = DateFormat("yyyy-MM-dd");
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: <Widget>[
+      DateTimeField(
+        format: format,
+        decoration: InputDecoration(labelText: "DOB"),
+        onShowPicker: (context, currentValue) {
+          return showDatePicker(
+              context: context,
+              firstDate: DateTime(1900),
+              initialDate: currentValue ?? DateTime.now(),
+              lastDate: DateTime(2100));
+        },
+      ),
+    ]);
   }
 }
