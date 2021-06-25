@@ -1,144 +1,143 @@
-import 'package:flutter/animation.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatefulWidget {
-  _MyAppState createState() => _MyAppState();
+void main() {
+  runApp(MyApp());
 }
 
-class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-  Animation<double> animation;
-  AnimationController controller;
-  @override
-  void initState() {
-    super.initState();
-    controller =
-        AnimationController(duration: const Duration(seconds: 10), vsync: this);
-    animation = Tween<double>(begin: 0.0, end: 1.0).animate(controller);
-    controller.forward();
-  }
-
+class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    controller.forward();
     return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: MyHomePage(
-          title: 'Product layout demo home page',
-          animation: animation,
-        ));
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+//Step 3
+  _HomeScreenState() {
+    _filter.addListener(() {
+      if (_filter.text.isEmpty) {
+        setState(() {
+          _searchText = "";
+          filteredNames = names;
+        });
+      } else {
+        setState(() {
+          _searchText = _filter.text;
+        });
+      }
+    });
+  }
+
+//Step 1
+  final TextEditingController _filter = new TextEditingController();
+  final dio = new Dio(); // for http requests
+  String _searchText = "";
+  List names = new List(); // names we get from API
+  List filteredNames = new List(); // names filtered by search text
+  Icon _searchIcon = new Icon(Icons.search);
+  Widget _appBarTitle = new Text('Search Example');
+
+  //step 2.1
+  void _getNames() async {
+    final response =
+        await dio.get('https://jsonplaceholder.typicode.com/users');
+    print(response.data);
+    List tempList = new List();
+    for (int i = 0; i < response.data.length; i++) {
+      tempList.add(response.data[i]);
+    }
+    setState(() {
+      names = tempList;
+      filteredNames = names;
+    });
+  }
+
+//Step 2.2
+  void _searchPressed() {
+    setState(() {
+      if (this._searchIcon.icon == Icons.search) {
+        this._searchIcon = new Icon(Icons.close);
+        this._appBarTitle = new TextField(
+          controller: _filter,
+          decoration: new InputDecoration(
+              prefixIcon: new Icon(Icons.search), hintText: 'Search...'),
+        );
+      } else {
+        this._searchIcon = new Icon(Icons.search);
+        this._appBarTitle = new Text('Search Example');
+        filteredNames = names;
+        _filter.clear();
+      }
+    });
+  }
+
+  //Step 4
+  Widget _buildList() {
+    if (!(_searchText.isEmpty)) {
+      List tempList = new List();
+      for (int i = 0; i < filteredNames.length; i++) {
+        if (filteredNames[i]['name']
+            .toLowerCase()
+            .contains(_searchText.toLowerCase())) {
+          tempList.add(filteredNames[i]);
+        }
+      }
+      filteredNames = tempList;
+    }
+    return ListView.builder(
+      itemCount: names == null ? 0 : filteredNames.length,
+      itemBuilder: (BuildContext context, int index) {
+        return new ListTile(
+          title: Text(filteredNames[index]['name']),
+          onTap: () => print(filteredNames[index]['name']),
+        );
+      },
+    );
+  }
+
+  //STep6
+  Widget _buildBar(BuildContext context) {
+    return new AppBar(
+      centerTitle: true,
+      title: _appBarTitle,
+      leading: new IconButton(
+        icon: _searchIcon,
+        onPressed: _searchPressed,
+      ),
+    );
   }
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  void initState() {
+    _getNames();
+    super.initState();
   }
-}
-
-class ProductBox extends StatelessWidget {
-  ProductBox({Key key, this.name, this.description, this.price, this.image})
-      : super(key: key);
-  final String name;
-  final String description;
-  final int price;
-  final String image;
-
-  Widget build(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.all(2),
-        height: 140,
-        child: Card(
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-              Image.asset("assets/images/" + image),
-              Expanded(
-                  child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          Text(this.name,
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text(this.description),
-                          Text("Price: " + this.price.toString()),
-                        ],
-                      )))
-            ])));
-  }
-}
-
-class MyAnimatedWidget extends StatelessWidget {
-  MyAnimatedWidget({this.child, this.animation});
-
-  final Widget child;
-  final Animation<double> animation;
-
-  Widget build(BuildContext context) => Center(
-        child: AnimatedBuilder(
-            animation: animation,
-            builder: (context, child) => Container(
-                  child: Opacity(opacity: animation.value, child: child),
-                ),
-            child: child),
-      );
-}
-
-class MyHomePage extends StatelessWidget {
-  MyHomePage({Key key, this.title, this.animation}) : super(key: key);
-
-  final String title;
-  final Animation<double> animation;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Product Listing")),
-        body: ListView(
-          shrinkWrap: true,
-          padding: const EdgeInsets.fromLTRB(2.0, 10.0, 2.0, 10.0),
-          children: <Widget>[
-            FadeTransition(
-                child: ProductBox(
-                    name: "iPhone",
-                    description: "iPhone is the stylist phone ever",
-                    price: 1000,
-                    image: "success.gif"),
-                opacity: animation),
-            MyAnimatedWidget(
-                child: ProductBox(
-                    name: "Pixel",
-                    description: "Pixel is the most featureful phone ever",
-                    price: 800,
-                    image: "pixel.jpg"),
-                animation: animation),
-            ProductBox(
-                name: "Laptop",
-                description: "Laptop is most productive development tool",
-                price: 2000,
-                image: "laptop.jpg"),
-            ProductBox(
-                name: "Tablet",
-                description:
-                    "Tablet is the most useful device ever for meeting",
-                price: 1500,
-                image: "tablet.jpg"),
-            ProductBox(
-                name: "Pendrive",
-                description: "Pendrive is useful storage medium",
-                price: 100,
-                image: "pendrive.jpg"),
-            ProductBox(
-                name: "Floppy Drive",
-                description: "Floppy drive is useful rescue storage medium",
-                price: 20,
-                image: "floppy.jpg"),
-          ],
-        ));
+      appBar: _buildBar(context),
+      body: Container(
+        child: _buildList(),
+      ),
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: _postName,
+//        child: Icon(Icons.add),
+//      ),
+    );
   }
 }
